@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuiz</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="quiz-container">
+    <h4>Lojë Kuizi nga Dion Shabani</h4>
+    <div id="question-container"></div>
+    <div id="answer-buttons" class="btn-container"></div>
+    <button onclick="nextQuestion()" id="next-button" class="btn" style="display:none;">Vazhdo</button>
+    <button onclick="prevQuestion()" id="prev-button" class="btn" style="display:none;">Kthehu</button>
+    <div id="result-container" style="display:none;">
+        <h2>Pikët tuaja:</h2>
+        <p id="score"></p>
+    </div>
+</div>
+
+<script>
+    const quizContainer = document.getElementById('quiz-container');
+    const questionContainer = document.getElementById('question-container');
+    const answerButtonsContainer = document.getElementById('answer-buttons');
+    const nextButton = document.getElementById('next-button');
+    const resultContainer = document.getElementById('result-container');
+    const scoreDisplay = document.getElementById('score');
+    
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let incorrectAnswers = [];
+
+const questions = [
+    {
+        question: '1. Nëse një automjet kalon një distancë prej 240 km në 3 orë, sa është shpejtësia mesatare?',
+        answers: [
+            { text: '80 km/h', correct: true },
+            { text: '60 km/h', correct: false },
+            { text: '40 km/h', correct: false },
+            { text: '120 km/h', correct: false }
+        ],
+    },
+    {
+        question: '2. Sa është 3/4 e 120?',
+        answers: [
+            { text: '30', correct: false },
+            { text: '60', correct: false },
+            { text: '90', correct: true },
+            { text: '80', correct: false }
+        ],
+    },
+    {
+        question: '3. Nëse një drejtkëndësh ka gjatësi 8 cm dhe gjerësia 5 cm, sa është siperfaqja e tij?',
+        answers: [
+            { text: '13 cm²', correct: false },
+            { text: '40 cm²', correct: true },
+            { text: '20 cm²', correct: false },
+            { text: '26 cm²', correct: false }
+        ],
+    },
+    {
+        question: '4. Cila është shpejtësia e dritës?',
+        answers: [
+            { text: '150,000 kilometra në orë', correct: false },
+            { text: '100,000 kilometra në minutë', correct: false },
+            { text: '186,282 milje në sekondë', correct: false },
+            { text: '300,000 kilometra në sekondë', correct: true }
+        ],
+    },
+    {
+        question: '5. Cili është autori i njohur i veprës "Romeo dhe Zhuljeta"?',
+        answers: [
+            { text: 'Charles Dickens', correct: false },
+            { text: 'William Shakespeare', correct: true },
+            { text: 'Jane Austen', correct: false },
+            { text: 'Leo Tolstoy', correct: false }
+        ],
+    },
+    {
+        question: '6. Cili është kryeqyteti i Australisë?',
+        answers: [
+            { text: 'Kanberra', correct: true },
+            { text: 'Sidnei', correct: false },
+            { text: 'Melburni', correct: false },
+            { text: 'Brisbane', correct: false }
+        ],
+    },
+    {
+        question: '7. Cila është maja më e lartë në botë?',
+        answers: [
+            { text: 'K2', correct: false },
+            { text: 'Annapurna', correct: false },
+            { text: 'Mont Everest', correct: true },
+            { text: 'Denali', correct: false }
+        ],
+    },
+    {
+        question: '8. Cili është lumi më i gjatë në botë?',
+        answers: [
+            { text: 'Yangtze', correct: false },
+            { text: 'Amazoni', correct: false },
+            { text: 'Misisipi', correct: false },
+            { text: 'Nili', correct: true }
+        ],
+    },
+    {
+        question: '9. Çfarë është ADN?',
+        answers: [
+            { text: 'Acid Nukleik Dheu', correct: false },
+            { text: 'Acid Deoksiribonukleik', correct: true },
+            { text: 'Aromë Drejtësi Natyrore', correct: false },
+            { text: 'Acidi Ribonukleik', correct: false }
+        ],
+    },
+    {
+        question: '10. Cili është kryeqyteti i Turqisë?',
+        answers: [
+            { text: 'Ankaraja', correct: true },
+            { text: 'Stambolli', correct: false },
+            { text: 'Bodrum', correct: false },
+            { text: 'Izmiri', correct: false }
+        ],
+    },
+    {
+        question: '11. Kur filloi Lufta e Parë Botërore?',
+        answers: [
+            { text: '1915', correct: false },
+            { text: '1917', correct: false },
+            { text: '1914', correct: true },
+            { text: '1913 ', correct: false }
+        ],
+    },
+    {
+        question: '12. Njeriu bën pjesë në:',
+        answers: [
+            { text: 'Ujëtokësorë', correct: false },
+            { text: 'Rruazorë', correct: false },
+            { text: 'Shtazë', correct: false },
+            { text: 'Gjitarë', correct: true }
+        ],
+    },
+    {
+        question: '13. Viti 2022 është i veçantë sepse shifra 2 shfaqet tri herë. Kjo është hera e tretë që breshka e quajtur Eva ka jetuar në një vit të tillë me tri shifra identike. Në fund të vitit 2022, sa është mosha më e vogël e mundshme e Evës?',
+        answers: [
+            { text: '18', correct: false },
+            { text: '23', correct: true },
+            { text: '134', correct: false },
+            { text: '222', correct: false }
+        ],
+    },
+    {
+        question: '14. Cili është kryeqyteti i Rusisë?',
+        answers: [
+            { text: 'Sankt Petersburg', correct: false },
+            { text: 'Minsk', correct: false },
+            { text: 'Moska', correct: true },
+            { text: 'Kiev', correct: false }
+        ],
+    },
+    {
+        question: '15. Cili është numri i pi?',
+        answers: [
+            { text: '3.142', correct: true },
+            { text: '2.718', correct: false },
+            { text: '1.618', correct: false },
+            { text: '2.236', correct: false }
+        ],
+    },
+    {
+        question: '16. Cili është planeti më i largët nga Dielli në sistemin tonë diellor?',
+        answers: [
+            { text: 'Jupiteri', correct: false },
+            { text: 'Plutoni', correct: false },
+            { text: 'Saturni', correct: false },
+            { text: 'Neptuni', correct: true }
+        ],
+    },
+    {
+        question: '17. Cili është emri i krijuesit të Facebook?',
+        answers: [
+            { text: 'Jeff Bezos', correct: false },
+            { text: 'Elon Musk', correct: false },
+            { text: 'Mark Zuckerberg', correct: true },
+            { text: 'Bill Gates', correct: false }
+        ],
+    },
+    {
+        question: '18. Cili është elementi kimik me simbolin "Fe"?',
+        answers: [
+            { text: 'Hekuri', correct: true },
+            { text: 'Flori', correct: false },
+            { text: 'Fosfori', correct: false },
+            { text: 'Fluori ', correct: false }
+        ],
+    },
+    {
+        question: '19. Cili është kontinenti më i madh në sipërfaqe?',
+        answers: [
+            { text: 'Amerika Veriore', correct: false },
+            { text: 'Azia', correct: true },
+            { text: 'Afrika', correct: false },
+            { text: 'Evropa ', correct: false }
+        ],
+    },
+    {
+        question: '20. Cili është kryeqyteti i Egjiptit?',
+        answers: [
+            { text: 'Aleksandria', correct: false },
+            { text: 'Luxor', correct: false },
+            { text: 'Giza', correct: false },
+            { text: 'Kajro', correct: true }
+        ],
+    },
+];
+
+function startQuiz() {
+    currentQuestionIndex = 0;
+    score = 0;
+    incorrectAnswers = [];
+    resultContainer.style.display = 'none';
+    nextButton.style.display = 'none';
+    showQuestion(questions[currentQuestionIndex]);
+}
+
+function prevQuestion() {
+    if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        showQuestion(questions[currentQuestionIndex]);
+        nextButton.style.display = 'none';
+    }
+}
+
+function showQuestion(question) {
+    questionContainer.innerText = question.question;
+    clearAnswerButtons();
+    question.answers.forEach(answer => {
+        const button = document.createElement('button');
+        button.innerText = answer.text;
+        button.classList.add('btn');
+        button.addEventListener('click', () => selectAnswer(answer));
+        answerButtonsContainer.appendChild(button);
+        const backButton = document.getElementById('prev-button');
+    backButton.style.display = currentQuestionIndex > 0 ? 'block' : 'none';
+    });
+}
+
+function clearAnswerButtons() {
+    while (answerButtonsContainer.firstChild) {
+        answerButtonsContainer.removeChild(answerButtonsContainer.firstChild);
+    }
+}
+
+function selectAnswer(answer) {
+    const correct = answer.correct;
+
+    // Check if the answer has already been selected for the current question
+    const alreadySelectedIndex = incorrectAnswers.findIndex(
+        mistake => mistake.question === questions[currentQuestionIndex].question &&
+                    mistake.selectedAnswer === answer.text
+    );
+
+    if (alreadySelectedIndex !== -1) {
+        // Remove the corrected answer from the incorrectAnswers array
+        incorrectAnswers.splice(alreadySelectedIndex, 1);
+    }
+
+    if (!correct && alreadySelectedIndex === -1) {
+        // If the answer is incorrect and not already in the array, add it to the list of incorrect answers
+        incorrectAnswers.push({
+            question: questions[currentQuestionIndex].question,
+            selectedAnswer: answer.text,
+            correctAnswer: questions[currentQuestionIndex].answers.find(a => a.correct).text,
+        });
+    }
+
+    // Increment the score for correct answers
+    if (correct) {
+        score++;
+    }
+
+    nextQuestion(); // Automatically move to the next question
+}
+
+
+
+function nextQuestion() {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < questions.length) {
+        showQuestion(questions[currentQuestionIndex]);
+        nextButton.style.display = 'none';
+    } else {
+        showResults();
+    }
+}
+
+function showResults() {
+    resultContainer.style.display = 'block';
+
+    // Display the correct score (not exceeding the total number of questions)
+    const displayScore = Math.min(score, questions.length);
+    scoreDisplay.innerText = `${displayScore} out of ${questions.length}`;
+
+    // Display the list of incorrect answers
+    if (incorrectAnswers.length > 0) {
+        const mistakesContainer = document.createElement('div');
+        mistakesContainer.innerHTML = '<h2>Gabimet:</h2>';
+        incorrectAnswers.forEach(mistake => {
+            const mistakeItem = document.createElement('p');
+            mistakeItem.innerHTML = `<strong>${mistake.question}</strong><br>Përgjigjja jote: ${mistake.selectedAnswer}<br>Përgjigjja e saktë: ${mistake.correctAnswer}<br>`;
+            mistakesContainer.appendChild(mistakeItem);
+        });
+        resultContainer.appendChild(mistakesContainer);
+    }
+}
+
+// Start the quiz when the page loads
+startQuiz();
+</script>
+
+</body>
+</html>
